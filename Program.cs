@@ -124,9 +124,9 @@ class Program
             throw new ArgumentException("Date string cannot be null or empty.");
         }
 
-        if (!DateTime.TryParseExact(dateString, "MM/dd/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDate))
+        if (!DateTime.TryParseExact(dateString, "M/d/yy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDate))
         {
-            throw new FormatException($"Invalid date format. Expected format is MM/dd/yyyy. Input was: {dateString}");
+            throw new FormatException($"Invalid date format. Expected format is M/d/yy. Input was: {dateString}");
         }
 
         return parsedDate;
