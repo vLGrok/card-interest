@@ -10,7 +10,7 @@ The program reads a CSV file named `card-data.csv` containing balance and date e
 
 ```
 \"balance\",\"date\"
-11573.13,\"1/1/2024\"
+11573.13,1/1/2024
 ```
 
 ### Notes:
@@ -38,8 +38,8 @@ The program reads a CSV file named `card-data.csv` containing balance and date e
 Suppose your `card-data.csv` file contains the following data:
 
 ```
-11573.13,\"1/1/2024\"
-12054.98,\"1/4/2024\"
+11573.13,1/1/2024
+12054.98,1/4/2024
 ```
 
 Running the program will output the total interest accrued for the year 2024, calculated using the default 20% annual interest rate, which can be updated in the code.
