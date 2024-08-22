@@ -9,11 +9,10 @@ This C# program calculates the total interest accrued over a specified period ba
 The program reads a CSV file containing balance and date entries in the following format:
 
 ```
-\"balance\",\"date\"
-15249.31,\"1/1/2024\"
-15979.31,\"1/1/2024\"
-15059.31,\"1/5/2024\"
-15559.41,\"1/9/2024\"
+ $ 15,249.31, \t 1/1/2024
+ $ 15,979.31, \t 1/1/2024
+ $ 15,059.31, \t 1/5/2024
+ $ 15,559.41, \t 1/9/2024
 ```
 
 ### Notes:
@@ -45,10 +44,10 @@ The program reads a CSV file containing balance and date entries in the followin
 Suppose your `card-data.csv` file contains the following data:
 
 ```
-\"15249.31\",\"1/1/24\"
-\"15979.31\",\"1/1/24\"
-\"15059.31\",\"1/5/24\"
-\"15559.41\",\"1/9/24\"
+ $ 15,249.31, \t 1/1/2024
+ $ 15,979.31, \t 1/1/2024
+ $ 15,059.31, \t 1/5/2024
+ $ 15,559.41, \t 1/9/2024
 ```
 
 Running the program with the following command:
