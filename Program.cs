@@ -54,8 +54,8 @@ class Program
 
         try
         {
-            startDate = GetValidatedDate("Please enter the start date (MM/dd/yyyy): ");
-            endDate = GetValidatedDate("Please enter the end date (MM/dd/yyyy): ");
+            startDate = GetValidatedDate("Please enter the start date (M/d/yy): ");
+            endDate = GetValidatedDate("Please enter the end date (M/d/yy): ");
 
             if (startDate > endDate)
             {
@@ -99,11 +99,18 @@ class Program
 
             foreach (var line in lines)
             {
-                var parts = line.Split(',');
+                // Split the line using the tab character as the delimiter
+                var parts = line.Split('\t');
                 if (parts.Length == 2)
                 {
-                    decimal balance = decimal.Parse(parts[0].Trim('\"'), CultureInfo.InvariantCulture);
-                    DateTime date = DateTime.Parse(parts[1].Trim('\"'), CultureInfo.InvariantCulture);
+                    string balanceString = parts[0].Trim();
+                    string dateString = parts[1].Trim();
+
+                    // Remove any commas in the balance string and parse as currency
+                    balanceString = balanceString.Replace(",", "");
+                    decimal balance = ParseCurrency(balanceString);
+                    DateTime date = DateTime.Parse(dateString, CultureInfo.InvariantCulture);
+
                     entries[date] = balance;
                 }
             }
@@ -115,6 +122,21 @@ class Program
         }
 
         return true;
+    }
+
+    static decimal ParseCurrency(string currencyString)
+    {
+        // Remove leading currency symbols like $ and other spaces
+        currencyString = currencyString.Replace("$", "").Trim();
+
+        if (decimal.TryParse(currencyString, NumberStyles.Currency, CultureInfo.InvariantCulture, out decimal result))
+        {
+            return result;
+        }
+        else
+        {
+            throw new FormatException($"Invalid currency format: {currencyString}");
+        }
     }
 
     static DateTime ValidateDateString(string? dateString)
