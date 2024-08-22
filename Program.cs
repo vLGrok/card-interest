@@ -7,87 +7,114 @@ class Program
 {
     static void Main(string[] args)
     {
-        // Verify command line arguments
+        if (!TryParseArguments(args, out decimal interestRate, out string filePath))
+            return;
+
+        if (!TryGetDateRange(out DateTime startDate, out DateTime endDate))
+            return;
+
+        if (!TryProcessFile(filePath, out Dictionary<DateTime, decimal> entries))
+            return;
+
+        decimal totalInterest = CalculateInterest(entries, interestRate, startDate, endDate);
+        Console.WriteLine($"Total Interest for the period {startDate.ToShortDateString()} to {endDate.ToShortDateString()}: {totalInterest:C}");
+    }
+
+    static bool TryParseArguments(string[] args, out decimal interestRate, out string filePath)
+    {
+        interestRate = 0;
+        filePath = string.Empty;
+
         if (args.Length < 2)
         {
             Console.WriteLine("Usage: Program <interest_rate> <file_path>");
-            return;
+            return false;
         }
 
-        // Parse and verify interest rate
-        if (!decimal.TryParse(args[0], NumberStyles.Float, CultureInfo.InvariantCulture, out decimal interestRate) || interestRate <= 0)
+        if (!decimal.TryParse(args[0], NumberStyles.Float, CultureInfo.InvariantCulture, out interestRate) || interestRate <= 0)
         {
             Console.WriteLine("Error: Invalid interest rate. Please provide a positive decimal value (e.g., 0.21 for 21%).");
-            return;
+            return false;
         }
 
-        // Verify file exists
-        string filePath = args[1];
+        filePath = args[1];
         if (!File.Exists(filePath))
         {
             Console.WriteLine($"Error: The file '{filePath}' does not exist.");
-            return;
+            return false;
         }
 
-        // Ask the user for the start and end dates
-        DateTime startDate, endDate;
-        
+        return true;
+    }
+
+    static bool TryGetDateRange(out DateTime startDate, out DateTime endDate)
+    {
+        startDate = DateTime.MinValue;
+        endDate = DateTime.MinValue;
+
+        try
+        {
+            startDate = GetValidatedDate("Please enter the start date (MM/dd/yyyy): ");
+            endDate = GetValidatedDate("Please enter the end date (MM/dd/yyyy): ");
+
+            if (startDate > endDate)
+            {
+                Console.WriteLine("Error: Start date must be before or equal to the end date.");
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            return false;
+        }
+
+        return true;
+    }
+
+    static DateTime GetValidatedDate(string prompt)
+    {
         while (true)
         {
-            Console.Write("Please enter the start date (MM/dd/yyyy): ");
-            string? startDateInput = Console.ReadLine();
+            Console.Write(prompt);
+            string? input = Console.ReadLine();
             try
             {
-                startDate = ValidateDateString(startDateInput);
-                break;
+                return ValidateDateString(input);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error: {ex.Message}");
             }
         }
+    }
 
-        while (true)
+    static bool TryProcessFile(string filePath, out Dictionary<DateTime, decimal> entries)
+    {
+        entries = new Dictionary<DateTime, decimal>();
+
+        try
         {
-            Console.Write("Please enter the end date (MM/dd/yyyy): ");
-            string? endDateInput = Console.ReadLine();
-            try
-            {
-                endDate = ValidateDateString(endDateInput);
+            string[] lines = File.ReadAllLines(filePath);
 
-                // Ensure start date is before or equal to end date
-                if (startDate > endDate)
+            foreach (var line in lines)
+            {
+                var parts = line.Split(',');
+                if (parts.Length == 2)
                 {
-                    Console.WriteLine("Error: Start date must be before or equal to the end date.");
-                    continue;
+                    decimal balance = decimal.Parse(parts[0].Trim('\"'), CultureInfo.InvariantCulture);
+                    DateTime date = DateTime.Parse(parts[1].Trim('\"'), CultureInfo.InvariantCulture);
+                    entries[date] = balance;
                 }
-                
-                break;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}");
             }
         }
-
-        // Read and process the file
-        var entries = new Dictionary<DateTime, decimal>();
-        string[] lines = File.ReadAllLines(filePath);
-
-        foreach (var line in lines)
+        catch (Exception ex)
         {
-            var parts = line.Split(',');
-            if (parts.Length == 2)
-            {
-                decimal balance = decimal.Parse(parts[0].Trim('\"'), CultureInfo.InvariantCulture); // Parse balance first
-                DateTime date = DateTime.Parse(parts[1].Trim('\"'), CultureInfo.InvariantCulture); // Parse date second
-                entries[date] = balance; // This will overwrite any existing entry for the date
-            }
+            Console.WriteLine($"Error processing file: {ex.Message}");
+            return false;
         }
 
-        // Calculate and display the total interest
-        decimal totalInterest = CalculateInterest(entries, interestRate, startDate, endDate);
-        Console.WriteLine($"Total Interest for the period {startDate.ToShortDateString()} to {endDate.ToShortDateString()}: {totalInterest:C}");
+        return true;
     }
 
     static DateTime ValidateDateString(string? dateString)
