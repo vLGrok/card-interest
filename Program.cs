@@ -23,7 +23,7 @@ class Program
             }
         }
 
-        decimal interestRate = 0.05M; // Example interest rate (5%)
+        decimal interestRate = 0.20M; // Example interest rate (5%)
         decimal totalInterest = CalculateInterest(entries, interestRate);
 
         Console.WriteLine($"Total Interest for the year: {totalInterest:C}");
