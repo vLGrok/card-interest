@@ -30,50 +30,67 @@ class Program
         }
 
         // Ask the user for the start and end dates
-        Console.Write("Please enter the start date (MM/dd/yyyy): ");
-        string startDateInput = Console.ReadLine();
-
-        Console.Write("Please enter the end date (MM/dd/yyyy): ");
-        string endDateInput = Console.ReadLine();
-
-        try
+        DateTime startDate, endDate;
+        
+        while (true)
         {
-            // Validate the start and end dates
-            DateTime startDate = ValidateDateString(startDateInput);
-            DateTime endDate = ValidateDateString(endDateInput);
-
-            // Ensure start date is before or equal to end date
-            if (startDate > endDate)
+            Console.Write("Please enter the start date (MM/dd/yyyy): ");
+            string? startDateInput = Console.ReadLine();
+            try
             {
-                throw new ArgumentException("Start date must be before or equal to the end date.");
+                startDate = ValidateDateString(startDateInput);
+                break;
             }
-
-            // Read and process the file
-            var entries = new Dictionary<DateTime, decimal>();
-            string[] lines = File.ReadAllLines(filePath);
-
-            foreach (var line in lines)
+            catch (Exception ex)
             {
-                var parts = line.Split(',');
-                if (parts.Length == 2)
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+        }
+
+        while (true)
+        {
+            Console.Write("Please enter the end date (MM/dd/yyyy): ");
+            string? endDateInput = Console.ReadLine();
+            try
+            {
+                endDate = ValidateDateString(endDateInput);
+
+                // Ensure start date is before or equal to end date
+                if (startDate > endDate)
                 {
-                    decimal balance = decimal.Parse(parts[0].Trim('\"'), CultureInfo.InvariantCulture); // Parse balance first
-                    DateTime date = DateTime.Parse(parts[1].Trim('\"'), CultureInfo.InvariantCulture); // Parse date second
-                    entries[date] = balance; // This will overwrite any existing entry for the date
+                    Console.WriteLine("Error: Start date must be before or equal to the end date.");
+                    continue;
                 }
+                
+                break;
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+        }
 
-            // Calculate and display the total interest
-            decimal totalInterest = CalculateInterest(entries, interestRate, startDate, endDate);
-            Console.WriteLine($"Total Interest for the period {startDate.ToShortDateString()} to {endDate.ToShortDateString()}: {totalInterest:C}");
-        }
-        catch (Exception ex)
+        // Read and process the file
+        var entries = new Dictionary<DateTime, decimal>();
+        string[] lines = File.ReadAllLines(filePath);
+
+        foreach (var line in lines)
         {
-            Console.WriteLine($"Error: {ex.Message}");
+            var parts = line.Split(',');
+            if (parts.Length == 2)
+            {
+                decimal balance = decimal.Parse(parts[0].Trim('\"'), CultureInfo.InvariantCulture); // Parse balance first
+                DateTime date = DateTime.Parse(parts[1].Trim('\"'), CultureInfo.InvariantCulture); // Parse date second
+                entries[date] = balance; // This will overwrite any existing entry for the date
+            }
         }
+
+        // Calculate and display the total interest
+        decimal totalInterest = CalculateInterest(entries, interestRate, startDate, endDate);
+        Console.WriteLine($"Total Interest for the period {startDate.ToShortDateString()} to {endDate.ToShortDateString()}: {totalInterest:C}");
     }
 
-    static DateTime ValidateDateString(string dateString)
+    static DateTime ValidateDateString(string? dateString)
     {
         if (string.IsNullOrWhiteSpace(dateString))
         {
